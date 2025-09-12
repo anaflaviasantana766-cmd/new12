@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Lançamentos e Pré-vendas (Brasil)</title>
+		<style>
+			body { font-family: Arial, sans-serif; margin: 24px; }
+			label { display: inline-block; width: 100px; }
+			input { margin-right: 12px; }
+			table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+			th, td { border: 1px solid #ddd; padding: 8px; }
+			th { background: #f6f6f6; text-align: left; }
+		</style>
+	</head>
+	<body>
+		<h1>Lançamentos e Pré-vendas (Brasil)</h1>
+		<form id="f">
+			<label for="publisher">Editora</label>
+			<input id="publisher" name="publisher" placeholder="Intrínseca" />
+			<label for="genre">Gênero</label>
+			<input id="genre" name="genre" placeholder="Terror" />
+			<label for="status">Status</label>
+			<input id="status" name="status" placeholder="lançado / pré-venda" />
+			<button type="submit">Buscar</button>
+		</form>
+		<table>
+			<thead>
+				<tr>
+					<th>Título</th>
+					<th>Data</th>
+					<th>Editora</th>
+					<th>ISBN</th>
+					<th>BISAC</th>
+					<th>Status</th>
+					<th>Gênero</th>
+				</tr>
+			</thead>
+			<tbody id="rows"></tbody>
+		</table>
+		<script>
+			const form = document.getElementById('f');
+			const rows = document.getElementById('rows');
+			async function load(params = {}) {
+				const q = new URLSearchParams(params);
+				const r = await fetch('/api/books?' + q.toString());
+				const data = await r.json();
+				rows.innerHTML = data.map(b => `
+					<tr>
+						<td>${b.title ?? ''}</td>
+						<td>${b.release_date ?? ''}</td>
+						<td>${b.publisher ?? ''}</td>
+						<td>${b.isbn ?? ''}</td>
+						<td>${b.bisac ?? ''}</td>
+						<td>${b.status ?? ''}</td>
+						<td>${b.genre ?? ''}</td>
+					</tr>
+				`).join('');
+			}
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				const publisher = document.getElementById('publisher').value;
+				const genre = document.getElementById('genre').value;
+				const status = document.getElementById('status').value;
+				load({ publisher, genre, status });
+			});
+			load();
+		</script>
+	</body>
+</html>
